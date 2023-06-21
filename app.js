@@ -7,15 +7,15 @@ const categoryRoutes = require('./routes/categoryRouter');
 const commentRoutes = require('./routes/commentRouter');
 
 
-app.use(bodyParser.json());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 dbConnect();
 
-
 app.use(bodyParser.json());
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api', postRoutes);
 
