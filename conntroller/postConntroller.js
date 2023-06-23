@@ -37,6 +37,7 @@ const updatePost = async (req, res) => {
     try {
         await check('title').notEmpty().withMessage('Tiêu đề không được bỏ trống').run(req);
         await check('content').notEmpty().withMessage('Nội dung không được bỏ trống').run(req);
+
         // await check('categories').isArray({ min: 1 }).withMessage('Phải chọn ít nhất một danh mục').run(req);
 
         const errors = validationResult(req);
