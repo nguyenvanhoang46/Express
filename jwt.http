@@ -1,0 +1,25 @@
+GET http://localhost:5000/api/getMe
+Authorization: Beaer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGE0MzExMWVhZTI3OGJhNTRjYmVmY2IiLCJpYXQiOjE2ODg1NTI5OTQsImV4cCI6MTY4ODU1MzAyNH0.yemGxyS5JOl0HnaauQMvE1WJ0LIMk4UDiKtdLv6Hf7M
+###
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{ 
+    "username": "Van Hoang"
+}
+
+###
+POST http://localhost:5000/refreshToken
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlZhbiBIb2FuZyIsImlhdCI6MTY4ODQ3MjQxNn0.bp_lPynLP3VDRlWWB4xs1fJ_fjgXjtUdSdNTym1SOKQ"
+}
+
+###
+POST http://localhost:5000/logout
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlZhbiBIb2FuZyIsImlhdCI6MTY4ODQ3MTkyN30.IgavPhX16VLhuo6s2DykTFZ12GDz5pm6cdQdxtXyBX0"
+}

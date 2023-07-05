@@ -5,72 +5,85 @@ const { check, validationResult } = require('express-validator');
 
 
 const register = async (req, res) => {
-    const { email, password } = req.body;
     try {
-        await check('email').notEmpty().withMessage('Email không được bỏ trống').run(req);
-        await check('password').notEmpty().withMessage('Mật khẩu không được bỏ trống').run(req);
+        const { email, password } = req.body;
+        await check('email').notEmpty().withMessage("Email không được bỏ trống!").isEmail().withMessage("Email không hợp lệ!").run(req);
+        await check('password').notEmpty().withMessage("Mật khẩu không được bỏ trống!").run(req);
 
         const errors = validationResult(req);
+
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const existingUser = await User.findOne({ email });
-
+        const existingUser = await User.findOne({ email })
         if (existingUser) {
-            return res.status(400).json({ message: 'Người dùng đã tồn tại' });
+            return res.status(400).json({ message: "Email đã được sử dụng!" });
         }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = new User({ email, password: hashedPassword });
-        await user.save();
-
-        const token = jwt.sign({ userId: user._id }, 'your-secret-key');
-
-        res.status(201).json({ user, token });
-
+        const hashedPassword = await bcrypt.hash(password, 10)
+        const userRegister = new User({ email, password: hashedPassword })
+        await userRegister.save();
+        res.status(201).json({ userRegister })
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+
+}
 
 
 const login = async (req, res) => {
-
-    const { email, password } = req.body;
-
     try {
-        await check('email').notEmpty().withMessage('email không được bỏ trống').run(req);
-        await check('password').notEmpty().withMessage('mật khẩu khồng được bỏ trống').run(req);
+        const { email, password } = req.body;
+        await check('email').isEmpty().withMessage("Email không được bỏ trống!").isEmail().withMessage("Email không hợp lệ!").run(req);
+        await check('password').isEmpty().withMessage("Mật khẩu không được bỏ trống!").run(req);
 
         const errors = validationResult(req);
+
         if (!errors.isEmpty) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array() })
         }
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'Người dùng không tồn tại' });
+        const userLogin = await User.findOne({ email })
+
+        if (!userLogin) {
+            return res.status(400).json({ message: "Email không tồn tại!" })
         }
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, userLogin.password);
 
         if (!passwordMatch) {
-            return res.status(401).json({ message: 'Mật khẩu không đúng' });
+            return res.status(401).json({ message: "Mật khẩu không đúng!" });
         }
 
-        const token = jwt.sign({ userId: user._id }, 'your-secret-key');
+        const accessToken = jwt.sign({ userId: userLogin._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30s' })
 
-        res.json({ user, token });
+        const refreshToken = jwt.sign({ userId: userLogin._id }, process.env.REFRESH_TOKEN_SECRET);
+
+        res.json({ userLogin, accessToken, refreshToken });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
 
+const getMe = async (req, res) => {
+    try {
+        const userId = req.userId;
+        
+        const user = await User.findById(userId);
+        console.log(user);
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+        }
+        res.json({ user });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 module.exports = {
     register,
     login,
+    getMe,
 };
